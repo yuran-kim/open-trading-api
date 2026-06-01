@@ -82,12 +82,12 @@ def request_token(appkey: str, appsecret: str) -> Dict[str, Any]:
         "appkey": appkey,
         "appsecret": appsecret,
     }
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    headers = {"content-type": "application/json"}
 
     last_exception = None
     for attempt in range(1, RETRY_MAX + 1):
         try:
-            response = requests.post(url, data=payload, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
+            response = requests.post(url, json=payload, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
             response.raise_for_status()
             result = response.json()
             if "access_token" not in result:
