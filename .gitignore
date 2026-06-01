@@ -176,3 +176,5 @@ backtester/examples/output/*.py
 settings.local.json
 
 .serena/
+
+token_cache.json
