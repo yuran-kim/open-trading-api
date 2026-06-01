@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 from api_client import ApiClient
 from config import (
     ACCOUNT_PRODUCT_CODE,
+    DRY_RUN,
     ORDER_DVSN,
     ORDER_ENDPOINT,
     ORD_DVSN,
@@ -38,12 +39,26 @@ def place_order(
 
     order_type = "BUY" if side == SIDE_BUY else "SELL"
     logger.info(
-        "Submitting %s order: symbol=%s price=%s quantity=%s",
+        "Preparing %s order: symbol=%s price=%s quantity=%s",
         order_type,
         SYMBOL,
         price,
         quantity,
     )
+
+    if DRY_RUN:
+        logger.info("DRY_RUN enabled: skipping POST to %s", ORDER_ENDPOINT)
+        mock_response = {
+            "status": "DRY_RUN",
+            "order_type": order_type,
+            "symbol": SYMBOL,
+            "price": price,
+            "quantity": quantity,
+            "payload": order_payload,
+        }
+        logger.info("Mock order response: %s", mock_response)
+        return mock_response
+
     response = api_client.post(ORDER_ENDPOINT, json_data=order_payload)
     logger.info("Order response: %s", response)
     return response

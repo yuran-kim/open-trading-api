@@ -61,4 +61,4 @@ AVAILABLE_CASH_FIELD = "dpsl_usedamt"
 #   update the endpoint constants and field constants above.
 # - This project is intentionally conservative with API calls to preserve the mock trading quota.
 
-#DRY_RUN = True
+DRY_RUN = True
