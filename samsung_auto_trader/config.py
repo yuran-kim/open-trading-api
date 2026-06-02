@@ -58,13 +58,15 @@ BALANCE_RESPONSE_KEY = "output1"
 HOLDINGS_RESPONSE_KEY = "output2"
 HOLDING_SYMBOL_FIELD = "pdno"
 HOLDING_QUANTITY_FIELD = "hldg_qty"
-AVAILABLE_CASH_FIELD = "dpsl_usedamt"
+AVAILABLE_CASH_FIELD = "dnca_tot_amt"
 
 # Notes:
 # - If the Korean Investment Open API field names or response object names differ,
 #   update the endpoint constants and field constants above.
 # - This project is intentionally conservative with API calls to preserve the mock trading quota.
 
-DRY_RUN = True
+DRY_RUN = True  # Set to True to enable dry-run mode (no real orders placed)
 TR_ID_PRICE = "FHKST01010100"
 TR_ID_BALANCE = "VTTC8434R"
+TR_ID_BUY = "VTTC0802U"
+TR_ID_SELL = "VTTC0801U"

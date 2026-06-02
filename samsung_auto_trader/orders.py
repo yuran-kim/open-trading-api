@@ -12,6 +12,8 @@ from config import (
     SIDE_BUY,
     SIDE_SELL,
     SYMBOL,
+    TR_ID_BUY,
+    TR_ID_SELL,
 )
 from logger import get_logger
 
@@ -59,7 +61,13 @@ def place_order(
         logger.info("Mock order response: %s", mock_response)
         return mock_response
 
-    response = api_client.post(ORDER_ENDPOINT, json_data=order_payload)
+    tr_id = TR_ID_BUY if side == SIDE_BUY else TR_ID_SELL
+
+    response = api_client.post(
+        ORDER_ENDPOINT,
+        json_data=order_payload,
+        headers={"tr_id": tr_id},
+    )
     logger.info("Order response: %s", response)
     return response
 

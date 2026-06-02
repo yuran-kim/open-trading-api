@@ -20,9 +20,11 @@ def parse_account_response(response: Dict[str, Any]) -> Dict[str, Any]:
     holdings = []
     available_cash = None
 
-    balance_section = response.get("output1")
+    balance_section = response.get("output2")
     if isinstance(balance_section, list) and balance_section:
         available_cash = balance_section[0].get(AVAILABLE_CASH_FIELD)
+
+    holdings_section = response.get("output1")
 
     holdings_section = response.get(HOLDINGS_RESPONSE_KEY)
     if isinstance(holdings_section, list):
@@ -61,6 +63,7 @@ def get_account_summary(api_client: ApiClient, account_number: str) -> Dict[str,
         params=params,
         headers={"tr_id": TR_ID_BALANCE},
     )
+
     summary = parse_account_response(response)
     logger.info(
         "Account available cash: %s KRW, holdings count: %s",
