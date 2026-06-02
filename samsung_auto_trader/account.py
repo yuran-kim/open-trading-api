@@ -9,6 +9,7 @@ from config import (
     HOLDING_SYMBOL_FIELD,
     HOLDINGS_RESPONSE_KEY,
     SYMBOL,
+    TR_ID_BALANCE,
 )
 from logger import get_logger
 
@@ -42,14 +43,24 @@ def parse_account_response(response: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_account_summary(api_client: ApiClient, account_number: str) -> Dict[str, Any]:
     params = {
-        "CANO": account_number,
-        "ACNT_PRDT_CD": ACCOUNT_PRODUCT_CODE,
+        "CANO": account_number[:8],
+        "ACNT_PRDT_CD": account_number[8:] if len(account_number) > 8 else ACCOUNT_PRODUCT_CODE,
+        "AFHR_FLPR_YN": "N",
+        "OFL_YN": "",
         "INQR_DVSN": "02",
         "UNPR_DVSN": "01",
-        "FNCG_AMT_ICLD_YN": "N",
+        "FUND_STTL_ICLD_YN": "N",
+        "FNCG_AMT_AUTO_RDPT_YN": "N",
+        "PRCS_DVSN": "00",
+        "CTX_AREA_FK100": "",
+        "CTX_AREA_NK100": "",
     }
     logger.info("Requesting account balance and holdings")
-    response = api_client.get(ACCOUNT_BALANCE_ENDPOINT, params=params)
+    response = api_client.get(
+        ACCOUNT_BALANCE_ENDPOINT,
+        params=params,
+        headers={"tr_id": TR_ID_BALANCE},
+    )
     summary = parse_account_response(response)
     logger.info(
         "Account available cash: %s KRW, holdings count: %s",

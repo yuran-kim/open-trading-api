@@ -14,22 +14,22 @@ from logger import get_logger
 logger = get_logger(__name__)
 
 
-def parse_price_response(response: Dict[str, Any]) -> Optional[int]:
+def parse_price_response(response: dict) -> int | None:
     payload = response.get(PRICE_RESPONSE_KEY)
-    if not payload or not isinstance(payload, list):
+
+    if not isinstance(payload, dict):
         logger.error("Unexpected price response structure: %s", response)
         return None
 
-    first_item = payload[0] if payload else {}
-    price = first_item.get(PRICE_FIELD)
-    if price is None:
-        logger.error("Could not find price field '%s' in response", PRICE_FIELD)
+    raw_price = payload.get(PRICE_FIELD)
+    if raw_price is None:
+        logger.error("Price field %s not found in response: %s", PRICE_FIELD, response)
         return None
 
     try:
-        return int(price)
-    except (TypeError, ValueError):
-        logger.error("Price value is not numeric: %s", price)
+        return int(raw_price)
+    except ValueError:
+        logger.error("Could not parse price value: %s", raw_price)
         return None
 
 
