@@ -28,15 +28,12 @@ def place_order(
     quantity: int = ORDER_QUANTITY,
 ) -> Dict[str, Any]:
     order_payload: Dict[str, Any] = {
-        "CANO": account_number,
-        "ACNT_PRDT_CD": ACCOUNT_PRODUCT_CODE,
+        "CANO": account_number[:8],
+        "ACNT_PRDT_CD": account_number[8:] if len(account_number) > 8 else ACCOUNT_PRODUCT_CODE,
         "PDNO": SYMBOL,
-        "ORD_DVSN": ORD_DVSN,
-        "ORD_TP": side,
-        "ORD_PRC": str(price),
+        "ORD_DVSN": "00",
         "ORD_QTY": str(quantity),
-        "ORD_UNPR_DVSN": ORD_TYPE,
-        "BNS_ADJ_ORDTPS_PRSN_CD": ORDER_DVSN,
+        "ORD_UNPR": str(price),
     }
 
     order_type = "BUY" if side == SIDE_BUY else "SELL"

@@ -61,9 +61,15 @@ class TradingSession:
             before_holding.get("quantity", 0),
         )
 
-        buy_price = max(1, current_price - ORDER_PRICE_OFFSET)
-        sell_price = current_price + ORDER_PRICE_OFFSET
+        def floor_to_tick(price: int, tick: int = 500) -> int:
+            return (price // tick) * tick
 
+        def ceil_to_tick(price: int, tick: int = 500) -> int:
+            return ((price + tick - 1) // tick) * tick
+
+        buy_price = floor_to_tick(max(1, current_price - ORDER_PRICE_OFFSET))
+        sell_price = ceil_to_tick(current_price + ORDER_PRICE_OFFSET)
+        
         buy_response = place_buy_order(self.api_client, self.account_number, buy_price)
         logger.info("Buy order submitted: %s", buy_response)
 
