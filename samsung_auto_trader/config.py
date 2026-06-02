@@ -52,7 +52,7 @@ RETRY_BACKOFF_SECONDS = 2.0
 LOG_LEVEL = logging.INFO
 
 # Response field names and structure placeholders
-PRICE_RESPONSE_KEY = "output1"
+PRICE_RESPONSE_KEY = "output"
 PRICE_FIELD = "stck_prpr"
 BALANCE_RESPONSE_KEY = "output1"
 HOLDINGS_RESPONSE_KEY = "output2"
