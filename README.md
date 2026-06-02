@@ -1,3 +1,14 @@
+# Open Trading API를 활용한 Assignment
+
+## Samsung Auto Trader
+
+한국투자증권 Open API를 활용한 삼성전자 자동매매 프로그램입니다.
+
+상세 설명:
+[samsung_auto_trader/README.md](./samsung_auto_trader/README.md)
+
+
+
 **[당사에서 제공하는 샘플코드에 대한 유의사항]**
 
 - 샘플 코드는 한국투자증권 Open API(KIS Developers)를 연동하는 예시입니다. 고객님의 개발 부담을 줄이고자 참고용으로 제공되고 있습니다.
