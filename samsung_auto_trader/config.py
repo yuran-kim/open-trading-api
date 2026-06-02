@@ -66,3 +66,4 @@ AVAILABLE_CASH_FIELD = "dpsl_usedamt"
 # - This project is intentionally conservative with API calls to preserve the mock trading quota.
 
 DRY_RUN = True
+TR_ID_PRICE = "FHKST01010100"

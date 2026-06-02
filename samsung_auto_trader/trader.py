@@ -1,6 +1,9 @@
 import time
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import Optional
+
+KST = ZoneInfo("Asia/Seoul")
 
 from account import get_account_summary, get_symbol_holding
 from config import (
@@ -24,13 +27,13 @@ class TradingSession:
         self.account_number = account_number
 
     def is_trading_window(self) -> bool:
-        now = datetime.now().time()
+        now = datetime.now(KST).time()
         return TRADING_WINDOW_START <= now <= TRADING_WINDOW_END
 
     def run(self) -> None:
         logger.info("Trading session started")
         while True:
-            current_time = datetime.now()
+            current_time = datetime.now(KST)
             if current_time.time() > TRADING_WINDOW_END:
                 logger.info("Trading window has closed at %s. Stopping trading loop.", TRADING_WINDOW_END)
                 break
@@ -92,7 +95,7 @@ class TradingSession:
             )
 
     def _wait_until(self, target_time) -> None:
-        now = datetime.now()
+        now = datetime.now(KST)
         tomorrow = now
         if now.time() > target_time:
             logger.info("Trading window has passed for today")

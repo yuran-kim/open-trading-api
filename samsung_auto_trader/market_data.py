@@ -7,6 +7,7 @@ from config import (
     PRICE_FIELD,
     PRICE_RESPONSE_KEY,
     SYMBOL,
+    TR_ID_PRICE,
 )
 from logger import get_logger
 
@@ -38,7 +39,11 @@ def get_current_price(api_client: ApiClient) -> Optional[int]:
         "fid_input_iscd": SYMBOL,
     }
     logger.info("Requesting current price for %s", SYMBOL)
-    response = api_client.get(PRICE_ENDPOINT, params=params)
+    response = api_client.get(
+        PRICE_ENDPOINT,
+        params=params,
+        headers={"tr_id": TR_ID_PRICE},
+    )
     current_price = parse_price_response(response)
     if current_price is not None:
         logger.info("Current price for %s is %s KRW", SYMBOL, current_price)
