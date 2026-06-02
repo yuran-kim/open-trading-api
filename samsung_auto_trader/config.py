@@ -27,7 +27,7 @@ SYMBOL = "005930"
 MARKET_DIV_CODE = "J"  # Market division code for domestic stock (placeholder)
 ACCOUNT_PRODUCT_CODE = "01"  # Account product code placeholder
 ORDER_QUANTITY = 1
-ORDER_PRICE_OFFSET = 2000
+ORDER_PRICE_OFFSET = 1000
 
 # Order side constants
 SIDE_BUY = "1"  # Placeholder for buy order side
