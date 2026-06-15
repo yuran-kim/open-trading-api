@@ -31,14 +31,14 @@ def place_order(
         "CANO": account_number[:8],
         "ACNT_PRDT_CD": account_number[8:] if len(account_number) > 8 else ACCOUNT_PRODUCT_CODE,
         "PDNO": SYMBOL,
-        "ORD_DVSN": "00",
+        "ORD_DVSN": "01",
         "ORD_QTY": str(quantity),
-        "ORD_UNPR": str(price),
+        "ORD_UNPR": "0",
     }
 
     order_type = "BUY" if side == SIDE_BUY else "SELL"
     logger.info(
-        "Preparing %s order: symbol=%s price=%s quantity=%s",
+        "Preparing %s MARKET order: symbol=%s quantity=%s",
         order_type,
         SYMBOL,
         price,

@@ -65,7 +65,7 @@ AVAILABLE_CASH_FIELD = "dnca_tot_amt"
 #   update the endpoint constants and field constants above.
 # - This project is intentionally conservative with API calls to preserve the mock trading quota.
 
-DRY_RUN = True  # Set to True to enable dry-run mode (no real orders placed)
+DRY_RUN = True #Set to True to enable dry-run mode (no real orders placed)
 TR_ID_PRICE = "FHKST01010100"
 TR_ID_BALANCE = "VTTC8434R"
 TR_ID_BUY = "VTTC0802U"
