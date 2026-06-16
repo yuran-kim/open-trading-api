@@ -38,7 +38,7 @@ def place_order(
 
     order_type = "BUY" if side == SIDE_BUY else "SELL"
     logger.info(
-        "Preparing %s MARKET order: symbol=%s quantity=%s",
+        "Preparing %s MARKET order: symbol=%s reference_price=%s quantity=%s",
         order_type,
         SYMBOL,
         price,

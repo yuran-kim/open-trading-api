@@ -69,12 +69,28 @@ class TradingSession:
 
         buy_price = floor_to_tick(max(1, current_price - ORDER_PRICE_OFFSET))
         sell_price = ceil_to_tick(current_price + ORDER_PRICE_OFFSET)
-        
+
         buy_response = place_buy_order(self.api_client, self.account_number, buy_price)
         logger.info("Buy order submitted: %s", buy_response)
 
-        sell_response = place_sell_order(self.api_client, self.account_number, sell_price)
-        logger.info("Sell order submitted: %s", sell_response)
+        logger.info("Waiting 10 seconds after buy order before checking holdings.")
+        time.sleep(10)
+
+        after_buy_summary = get_account_summary(self.api_client, self.account_number)
+        after_buy_holding = get_symbol_holding(after_buy_summary, SYMBOL)
+        after_buy_qty = after_buy_holding.get("quantity", 0)
+
+        logger.info(
+            "Holdings after buy order for %s: quantity=%s",
+            SYMBOL,
+            after_buy_qty,
+        )
+
+        if after_buy_qty > 0:
+            sell_response = place_sell_order(self.api_client, self.account_number, sell_price)
+            logger.info("Sell order submitted: %s", sell_response)
+        else:
+            logger.info("Sell order skipped because buy order has not been reflected in holdings yet.")
 
         self._confirm_post_order(before_holding)
 
@@ -86,19 +102,11 @@ class TradingSession:
         before_qty = before_holding.get("quantity", 0)
         after_qty = after_holding.get("quantity", 0)
 
-        if after_qty != before_qty:
-            logger.info(
-                "Execution appears to have occurred. Holdings changed from %s to %s for %s.",
-                before_qty,
-                after_qty,
-                SYMBOL,
-            )
-        else:
-            logger.info(
-                "No immediate holdings change detected for %s (quantity=%s). Still verifying with balance and order status.",
-                SYMBOL,
-                after_qty,
-            )
+        logger.info(
+            "Post-cycle holdings for %s: quantity=%s.",
+            SYMBOL,
+            after_qty,
+        )
 
     def _wait_until(self, target_time) -> None:
         now = datetime.now(KST)
