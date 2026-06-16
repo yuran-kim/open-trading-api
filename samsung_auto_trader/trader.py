@@ -25,6 +25,8 @@ class TradingSession:
     def __init__(self, api_client: ApiClient, account_number: str) -> None:
         self.api_client = api_client
         self.account_number = account_number
+        self.reference_price: Optional[int] = None
+        self.initial_buy_done = False
 
     def is_trading_window(self) -> bool:
         now = datetime.now(KST).time()
@@ -53,46 +55,85 @@ class TradingSession:
             logger.error("Could not read current market price; skipping cycle")
             return
 
-        before_summary = get_account_summary(self.api_client, self.account_number)
-        before_holding = get_symbol_holding(before_summary, SYMBOL)
+        summary = get_account_summary(self.api_client, self.account_number)
+        holding = get_symbol_holding(summary, SYMBOL)
+        current_qty = holding.get("quantity", 0)
+
         logger.info(
-            "Holdings before orders for %s: quantity=%s",
+            "Current state for %s: price=%s, quantity=%s, reference_price=%s",
             SYMBOL,
-            before_holding.get("quantity", 0),
+            current_price,
+            current_qty,
+            self.reference_price,
         )
 
-        def floor_to_tick(price: int, tick: int = 500) -> int:
-            return (price // tick) * tick
+    # 1. 최초 실행 시 시장가 1주 매수
+    if not self.initial_buy_done:
+        logger.info("Initial buy has not been done yet. Placing initial MARKET buy order.")
+        buy_response = place_buy_order(self.api_client, self.account_number, current_price)
+        logger.info("Initial buy order submitted: %s", buy_response)
 
-        def ceil_to_tick(price: int, tick: int = 500) -> int:
-            return ((price + tick - 1) // tick) * tick
+        self.initial_buy_done = True
+        self.reference_price = current_price
 
-        buy_price = floor_to_tick(max(1, current_price - ORDER_PRICE_OFFSET))
-        sell_price = ceil_to_tick(current_price + ORDER_PRICE_OFFSET)
+        logger.info(
+            "Reference price set to %s after initial buy order.",
+            self.reference_price,
+        )
+        return
 
-        buy_response = place_buy_order(self.api_client, self.account_number, buy_price)
+    # reference_price가 없으면 현재가로 초기화
+    if self.reference_price is None:
+        self.reference_price = current_price
+        logger.info("Reference price initialized to %s", self.reference_price)
+        return
+
+    upper_trigger = self.reference_price + ORDER_PRICE_OFFSET
+    lower_trigger = self.reference_price - ORDER_PRICE_OFFSET
+
+    logger.info(
+        "Trigger prices: buy if price <= %s, sell if price >= %s",
+        lower_trigger,
+        upper_trigger,
+    )
+
+    # 2. 기준가격보다 1000원 이상 상승하면 시장가 매도
+    if current_price >= upper_trigger:
+        if current_qty > 0:
+            logger.info(
+                "Current price %s >= upper trigger %s. Placing MARKET sell order.",
+                current_price,
+                upper_trigger,
+            )
+            sell_response = place_sell_order(self.api_client, self.account_number, current_price)
+            logger.info("Sell order submitted: %s", sell_response)
+
+            self.reference_price = current_price
+            logger.info("Reference price updated to %s after sell.", self.reference_price)
+        else:
+            logger.info("Sell signal detected, but no holdings are available. Skipping sell order.")
+        return
+
+    # 3. 기준가격보다 1000원 이상 하락하면 시장가 추가 매수
+    if current_price <= lower_trigger:
+        logger.info(
+            "Current price %s <= lower trigger %s. Placing MARKET buy order.",
+            current_price,
+            lower_trigger,
+        )
+        buy_response = place_buy_order(self.api_client, self.account_number, current_price)
         logger.info("Buy order submitted: %s", buy_response)
 
-        logger.info("Waiting 10 seconds after buy order before checking holdings.")
-        time.sleep(10)
+        self.reference_price = current_price
+        logger.info("Reference price updated to %s after buy.", self.reference_price)
+        return
 
-        after_buy_summary = get_account_summary(self.api_client, self.account_number)
-        after_buy_holding = get_symbol_holding(after_buy_summary, SYMBOL)
-        after_buy_qty = after_buy_holding.get("quantity", 0)
-
-        logger.info(
-            "Holdings after buy order for %s: quantity=%s",
-            SYMBOL,
-            after_buy_qty,
-        )
-
-        if after_buy_qty > 0:
-            sell_response = place_sell_order(self.api_client, self.account_number, sell_price)
-            logger.info("Sell order submitted: %s", sell_response)
-        else:
-            logger.info("Sell order skipped because buy order has not been reflected in holdings yet.")
-
-        self._confirm_post_order(before_holding)
+    logger.info(
+        "No trade signal. Current price %s is between %s and %s.",
+        current_price,
+        lower_trigger,
+        upper_trigger,
+    )
 
     def _confirm_post_order(self, before_holding: dict) -> None:
         time.sleep(5)
