@@ -68,72 +68,72 @@ class TradingSession:
         )
 
     # 1. 최초 실행 시 시장가 1주 매수
-    if not self.initial_buy_done:
-        logger.info("Initial buy has not been done yet. Placing initial MARKET buy order.")
-        buy_response = place_buy_order(self.api_client, self.account_number, current_price)
-        logger.info("Initial buy order submitted: %s", buy_response)
+        if not self.initial_buy_done:
+            logger.info("Initial buy has not been done yet. Placing initial MARKET buy order.")
+            buy_response = place_buy_order(self.api_client, self.account_number, current_price)
+            logger.info("Initial buy order submitted: %s", buy_response)
 
-        self.initial_buy_done = True
-        self.reference_price = current_price
+            self.initial_buy_done = True
+            self.reference_price = current_price
 
-        logger.info(
-            "Reference price set to %s after initial buy order.",
-            self.reference_price,
-        )
-        return
+            logger.info(
+                "Reference price set to %s after initial buy order.",
+                self.reference_price,
+            )
+            return
 
     # reference_price가 없으면 현재가로 초기화
-    if self.reference_price is None:
-        self.reference_price = current_price
-        logger.info("Reference price initialized to %s", self.reference_price)
-        return
+        if self.reference_price is None:
+            self.reference_price = current_price
+            logger.info("Reference price initialized to %s", self.reference_price)
+            return
 
-    upper_trigger = self.reference_price + ORDER_PRICE_OFFSET
-    lower_trigger = self.reference_price - ORDER_PRICE_OFFSET
+        upper_trigger = self.reference_price + ORDER_PRICE_OFFSET
+        lower_trigger = self.reference_price - ORDER_PRICE_OFFSET
 
-    logger.info(
-        "Trigger prices: buy if price <= %s, sell if price >= %s",
-        lower_trigger,
-        upper_trigger,
-    )
+        logger.info(
+            "Trigger prices: buy if price <= %s, sell if price >= %s",
+            lower_trigger,
+            upper_trigger,
+        )
 
     # 2. 기준가격보다 1000원 이상 상승하면 시장가 매도
-    if current_price >= upper_trigger:
-        if current_qty > 0:
-            logger.info(
-                "Current price %s >= upper trigger %s. Placing MARKET sell order.",
-                current_price,
-                upper_trigger,
-            )
-            sell_response = place_sell_order(self.api_client, self.account_number, current_price)
-            logger.info("Sell order submitted: %s", sell_response)
+        if current_price >= upper_trigger:
+            if current_qty > 0:
+                logger.info(
+                    "Current price %s >= upper trigger %s. Placing MARKET sell order.",
+                    current_price,
+                    upper_trigger,
+                )
+                sell_response = place_sell_order(self.api_client, self.account_number, current_price)
+                logger.info("Sell order submitted: %s", sell_response)
 
-            self.reference_price = current_price
-            logger.info("Reference price updated to %s after sell.", self.reference_price)
-        else:
-            logger.info("Sell signal detected, but no holdings are available. Skipping sell order.")
-        return
+                self.reference_price = current_price
+                logger.info("Reference price updated to %s after sell.", self.reference_price)
+            else:
+                logger.info("Sell signal detected, but no holdings are available. Skipping sell order.")
+            return
 
     # 3. 기준가격보다 1000원 이상 하락하면 시장가 추가 매수
-    if current_price <= lower_trigger:
+        if current_price <= lower_trigger:
+            logger.info(
+                "Current price %s <= lower trigger %s. Placing MARKET buy order.",
+                current_price,
+                lower_trigger,
+            )
+            buy_response = place_buy_order(self.api_client, self.account_number, current_price)
+            logger.info("Buy order submitted: %s", buy_response)
+
+            self.reference_price = current_price
+            logger.info("Reference price updated to %s after buy.", self.reference_price)
+            return
+
         logger.info(
-            "Current price %s <= lower trigger %s. Placing MARKET buy order.",
+            "No trade signal. Current price %s is between %s and %s.",
             current_price,
             lower_trigger,
+            upper_trigger,
         )
-        buy_response = place_buy_order(self.api_client, self.account_number, current_price)
-        logger.info("Buy order submitted: %s", buy_response)
-
-        self.reference_price = current_price
-        logger.info("Reference price updated to %s after buy.", self.reference_price)
-        return
-
-    logger.info(
-        "No trade signal. Current price %s is between %s and %s.",
-        current_price,
-        lower_trigger,
-        upper_trigger,
-    )
 
     def _confirm_post_order(self, before_holding: dict) -> None:
         time.sleep(5)
