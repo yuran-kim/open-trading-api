@@ -1,3 +1,33 @@
+# Open Trading API를 활용한 Assignment
+
+## Samsung Auto Trader
+
+한국투자증권 Open API를 활용한 삼성전자(005930) 자동매매 프로그램입니다.
+
+### 주요 기능
+주요 기능은 다음과 같다.
+
+* OAuth2 기반 토큰 인증
+* 현재가 조회
+* 계좌 및 보유 종목 조회
+* 시장가 매수/매도 주문
+* 자동 거래 로직 수행
+* KST(한국 표준시) 로그 출력
+* API 재시도(Retry) 및 예외 처리
+
+상세 설명:
+[samsung_auto_trader/README.md](./samsung_auto_trader/README.md)
+
+위 파일에 자세히 작성해두었습니다.
+
+
+
+
+
+
+---
+
+
 **[당사에서 제공하는 샘플코드에 대한 유의사항]**
 
 - 샘플 코드는 한국투자증권 Open API(KIS Developers)를 연동하는 예시입니다. 고객님의 개발 부담을 줄이고자 참고용으로 제공되고 있습니다.
