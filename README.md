@@ -18,6 +18,13 @@
 상세 설명:
 [samsung_auto_trader/README.md](./samsung_auto_trader/README.md)
 
+위 파일에 자세히 작성해두었습니다.
+
+
+
+
+
+
 ---
 
 
