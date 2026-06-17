@@ -176,3 +176,6 @@ backtester/examples/output/*.py
 settings.local.json
 
 .serena/
+
+
+samsung_auto_trader/token_cache.json
